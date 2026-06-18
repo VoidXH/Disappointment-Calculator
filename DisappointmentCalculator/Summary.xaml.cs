@@ -34,9 +34,11 @@ public partial class SummaryPage : ContentPage {
     void CalculateMoneyBurn(DataAggregator data) {
         StringBuilder perModelTotal = new();
         decimal globalTotal = 0;
-        foreach (KeyValuePair<string, decimal[]> model in data.CostByModel.OrderBy(x => x.Key)) {
-            decimal cost = model.Value.Sum();
-            perModelTotal.Append(model.Key).Append(": ").AppendLine(cost.ToString("$0.00"));
+        int displayed = 0;
+        foreach ((string model, decimal cost) in data.CostByModel.Select(x => (x.Key, x.Value.Sum())).OrderByDescending(x => x.Item2)) {
+            if (displayed++ < 3) {
+                perModelTotal.Append(model).Append(": ").AppendLine(cost.ToString("$0.00"));
+            }
             globalTotal += cost;
         }
         grandTotal.Text = globalTotal.ToString("$0.00");
@@ -50,9 +52,11 @@ public partial class SummaryPage : ContentPage {
         CultureInfo culturewithSpaces = CultureInfo.GetCultureInfo("fr-FR");
         StringBuilder perModelTotal = new();
         decimal globalTotal = 0;
-        foreach (KeyValuePair<string, long[]> model in data.TokenUseByModel.OrderBy(x => x.Key)) {
-            long tokens = model.Value.Sum();
-            perModelTotal.Append(model.Key).Append(": ").AppendLine(tokens.ToString("N0", culturewithSpaces));
+        int displayed = 0;
+        foreach ((string model, long tokens) in data.TokenUseByModel.Select(x => (x.Key, x.Value.Sum())).OrderByDescending(x => x.Item2)) {
+            if (displayed++ < 3) {
+                perModelTotal.Append(model).Append(": ").AppendLine(tokens.ToString("N0", culturewithSpaces));
+            }
             globalTotal += tokens;
         }
         tokenmaxxing.Text = globalTotal.ToString("N0", culturewithSpaces);

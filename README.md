@@ -3,7 +3,8 @@ Calculate the time and money you spent in Copilot so it could make knowledge
 debt in your projects.
 
 ## Features
-- Load and parse GitHub Copilot session data from your local machine
+- Load and parse AI session data from your local machine
+  - Supports GitHub Copilot and Visual Studio Code
 - Aggregate token usage per month or day
 - Visualize total token consumption over time
 - Break down token usage by model type

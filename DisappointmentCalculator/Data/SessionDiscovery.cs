@@ -62,42 +62,37 @@ public static class SessionDiscovery {
     /// <param name="progress">Optional progress reporter reporting ratio of session folders processed (0-1)</param>
     /// <returns>A dictionary mapping each session's Guid to its Session object. Returns an empty dictionary if the directory does not exist.</returns>
     public static async Task<SessionCollection> ParseSessions(IProgress<double> progress = null) {
-        SessionCollection sessions = [];
-        string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        string sessionStateDir = Path.Combine(homeDir, ".copilot", "session-state");
-
-        if (!Directory.Exists(sessionStateDir)) {
-            return sessions;
-        }
-
         // Load cache to skip folders before cached date
         SessionCollection cachedSessions = SessionCache.LoadCache();
         DateTime lastUpdate = SessionCache.LastCacheUpdate;
         long cacheDateMs = lastUpdate == default ? 0 : new DateTimeOffset(lastUpdate).ToUnixTimeMilliseconds();
 
-        string[] sessionDirectories = Directory.GetDirectories(sessionStateDir);
-        int total = sessionDirectories.Length;
+        SessionCollection sessions = [];
+        IEnumerable<(Guid, string)> copilotSessions = CopilotSession.GetSessionFiles();
+        IEnumerable<(Guid, string)> vsCodeSessions = VSCodeSession.GetSessionFiles();
+        int total = copilotSessions.Count() + vsCodeSessions.Count();
         int processed = 0;
 
-        foreach (string sessionDir in sessionDirectories) {
-            processed++;
+        void ParseSet(IEnumerable<(Guid, string)> unparsedSessions, Func<string, Session> constructor) {
+            foreach ((Guid sessionId, string eventsFile) in unparsedSessions) {
+                processed++;
 
-            if (!Guid.TryParse(Path.GetFileName(sessionDir), out Guid sessionId)) {
-                continue;
-            }
-
-            string eventsFile = Path.Combine(sessionDir, "events.jsonl");
-            if (File.Exists(eventsFile) && IsSessionNewer(eventsFile, cacheDateMs)) {
+                Session session = null;
                 try {
-                    sessions[sessionId] = new CopilotSession(eventsFile);
+                    session = constructor(eventsFile);
                 } catch {
                     // Skip sessions that fail to parse
                 }
-            }
+                if (session?.SessionStartTime >= cacheDateMs) {
+                    sessions[sessionId] = session;
+                }
 
-            ReportProgress(progress, processed, total);
-            await Task.Yield();
+                ReportProgress(progress, processed, total);
+            }
         }
+
+        ParseSet(copilotSessions, x => new CopilotSession(x));
+        ParseSet(vsCodeSessions, x => new VSCodeSession(x));
 
         // Merge cached sessions with newly discovered ones
         foreach (KeyValuePair<Guid, Session> kvp in sessions) {
@@ -107,35 +102,6 @@ public static class SessionDiscovery {
         // Update cache with newly discovered sessions
         SessionCache.UpdateCache(sessions);
         return cachedSessions;
-    }
-
-    /// <summary>
-    /// Checks if a session's start time is newer than the cached cutoff.
-    /// </summary>
-    /// <param name="eventsFile">Path to the events.jsonl file</param>
-    /// <param name="cacheDateMs">Unix timestamp in milliseconds for the cache cutoff</param>
-    /// <returns>True if the session is newer than the cache cutoff, or false if it can be skipped</returns>
-    static bool IsSessionNewer(string eventsFile, long cacheDateMs) {
-        if (cacheDateMs == 0) {
-            return true; // No cache, process everything
-        }
-
-        string[] lines = File.ReadAllLines(eventsFile);
-        foreach (string line in lines) {
-            if (string.IsNullOrWhiteSpace(line)) {
-                continue;
-            }
-
-            using JsonDocument doc = JsonDocument.Parse(line);
-            JsonElement root = doc.RootElement;
-            if (root.TryGetProperty("type", out JsonElement typeProp) && typeProp.GetString() == "session.shutdown") {
-                JsonElement data = root.GetProperty("data");
-                if (data.TryGetProperty("sessionStartTime", out JsonElement sessionStartTime)) {
-                    return sessionStartTime.GetInt64() >= cacheDateMs;
-                }
-            }
-        }
-        return true; // If we can't determine the date, parse it to be safe
     }
 
     /// <summary>

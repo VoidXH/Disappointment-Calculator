@@ -13,8 +13,7 @@ public class CopilotSession : Session {
     /// </summary>
     /// <param name="filePath">Path to the events.jsonl file to parse</param>
     public CopilotSession(string filePath) {
-        string[] lines = File.ReadAllLines(filePath);
-        foreach (string line in lines) {
+        foreach (string line in File.ReadLines(filePath)) {
             if (string.IsNullOrWhiteSpace(line)) {
                 continue;
             }
@@ -62,5 +61,34 @@ public class CopilotSession : Session {
             ModelMetrics = result;
             break;
         }
+    }
+
+    /// <summary>
+    /// Gets all session file paths from the GitHub Copilot session-state directory.
+    /// </summary>
+    /// <returns>An enumerable of tuples containing the session Guid and the events.jsonl file path.</returns>
+    public static IEnumerable<(Guid sessionId, string eventsFile)> GetSessionFiles() {
+        string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string sessionStateDir = Path.Combine(homeDir, ".copilot", "session-state");
+
+        if (!Directory.Exists(sessionStateDir)) {
+            return [];
+        }
+
+        string[] sessionDirectories = Directory.GetDirectories(sessionStateDir);
+        List<(Guid SessionId, string EventsFile)> result = [];
+
+        foreach (string sessionDir in sessionDirectories) {
+            if (!Guid.TryParse(Path.GetFileName(sessionDir), out Guid sessionId)) {
+                continue;
+            }
+
+            string eventsFile = Path.Combine(sessionDir, "events.jsonl");
+            if (File.Exists(eventsFile)) {
+                result.Add((sessionId, eventsFile));
+            }
+        }
+
+        return result;
     }
 }

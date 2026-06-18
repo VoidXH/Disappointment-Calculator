@@ -35,6 +35,9 @@ public static class ModelDatabase {
         { "gpt-5.4-nano", new("OpenAI GPT-5.4 Nano", "gpt-5.4-nano", 0.2m, 1.25m, 0.02m, 0.25m) },
         { "gpt-5.5", new("OpenAI GPT-5.5 (Normal Context)", "gpt-5.5", 5m, 30m, 0.5m, 6.25m) },
         { "gpt-5.5-long", new("OpenAI GPT-5.5 (Long Context >272k)", "gpt-5.5-long", 10m, 45m, 10m, 12.5m) },
+
         { "VoidAI", new("VoidAI", "VoidAI", 0.0069444m, 0.069444m, 0, 0) },
+        { "oai2lmapi-Qwen3.6-35B-A3B-UD-Q6_K.gguf", new("Qwen3.6 35B-A3B Q6 K", "Qwen3.6-35B-A3B-UD-Q6_K", 0.0069444m, 0.069444m, 0, 0) },
+        { "oai2lmapi-Qwen3.6-35B-A3B-UD-Q6_K_XL.gguf", new("Qwen3.6 35B-A3B Q6 K XL", "Qwen3.6-35B-A3B-UD-Q6_K_XL", 0.0069444m, 0.069444m, 0, 0) },
     };
 }
