@@ -1,6 +1,6 @@
 # Disappointment Calculator
-Calculate the time and money you spent in Copilot so it could make knowledge
-debt in your projects.
+Calculate the time and money you spent on AI so it could make knowledge debt in
+your projects.
 
 ## Features
 - Load and parse AI session data from your local machine
