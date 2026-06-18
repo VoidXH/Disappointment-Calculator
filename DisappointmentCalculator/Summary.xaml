@@ -1,0 +1,76 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:graph="clr-namespace:DisappointmentCalculator.Presentation.Graphs"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
+             x:Class="DisappointmentCalculator.SummaryPage"
+             Title="Analytics Summary"
+             BackgroundColor="#0F172A">
+    <ScrollView>
+        <Grid Padding="24" RowDefinitions="Auto, *, *, Auto" ColumnDefinitions="*, *" RowSpacing="20" ColumnSpacing="20">
+            <Border Grid.Row="0" Grid.Column="0" Padding="24, 16" HorizontalOptions="Fill"
+                    BackgroundColor="#1E293B" Stroke="#334155" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.3"/>
+                </Border.Shadow>
+
+                <StackLayout Orientation="Vertical" HorizontalOptions="Center">
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                        <Label VerticalOptions="Center" FontSize="16" FontAttributes="Bold" CharacterSpacing="1" TextColor="#94A3B8" Text="Total cash lit on fire:"/>
+                        <Label x:Name="grandTotal" VerticalOptions="Center" FontSize="28" FontAttributes="Bold" TextColor="#EF4444"/>
+                    </StackLayout>
+                    <Label x:Name="modelTotal" HorizontalTextAlignment="End" TextColor="#94A3B8"/>
+                </StackLayout>
+            </Border>
+
+            <Border Grid.Row="0" Grid.Column="1" Padding="24, 16" HorizontalOptions="Fill"
+                    BackgroundColor="#1E293B" Stroke="#334155" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.3"/>
+                </Border.Shadow>
+
+                <StackLayout Orientation="Vertical" HorizontalOptions="Center">
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                        <Label VerticalOptions="Center" FontSize="16" FontAttributes="Bold" CharacterSpacing="1" TextColor="#94A3B8" Text="Tokenmaxxing score:"/>
+                        <Label x:Name="tokenmaxxing" VerticalOptions="Center" FontSize="28" FontAttributes="Bold" TextColor="#3B82F6"/>
+                    </StackLayout>
+                    <Label x:Name="tokenTotal" HorizontalTextAlignment="End" TextColor="#94A3B8"/>
+                </StackLayout>
+            </Border>
+
+            <Border Grid.Row="1" Grid.Column="0"
+                    BackgroundColor="#1E293B" StrokeThickness="1" Stroke="#334155" Padding="16" StrokeShape="RoundRectangle 16">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.2"/>
+                </Border.Shadow>
+                <graph:SelectableGraph x:Name="graph1" Grid.Row="1" SelectedGraphType="Tokens"/>
+            </Border>
+
+            <Border Grid.Row="1" Grid.Column="1"
+                    BackgroundColor="#1E293B" StrokeThickness="1" Stroke="#334155" Padding="16" StrokeShape="RoundRectangle 16">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.2"/>
+                </Border.Shadow>
+                <graph:SelectableGraph x:Name="graph2" Grid.Row="1" SelectedGraphType="TokensPerModel"/>
+            </Border>
+
+            <Border Grid.Row="2" Grid.Column="0"
+                    BackgroundColor="#1E293B" StrokeThickness="1" Stroke="#334155" Padding="16" StrokeShape="RoundRectangle 16">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.2"/>
+                </Border.Shadow>
+                <graph:SelectableGraph x:Name="graph3" Grid.Row="1" SelectedGraphType="TimeSpentInApi"/>
+            </Border>
+
+            <Border Grid.Row="2" Grid.Column="1"
+                    BackgroundColor="#1E293B" StrokeThickness="1" Stroke="#334155" Padding="16" StrokeShape="RoundRectangle 16">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.2"/>
+                </Border.Shadow>
+                <graph:SelectableGraph x:Name="graph4" Grid.Row="1" SelectedGraphType="CostPerModel"/>
+            </Border>
+
+            <Label Grid.Row="3" Grid.ColumnSpan="2" HorizontalOptions="Center" FontSize="13" TextColor="#F59E0B"
+                    Text="⚠️ Prices shown are approximates based on token cost snapshots. Not all calculations might be based on AI Credits."/>
+        </Grid>
+    </ScrollView>
+</ContentPage>

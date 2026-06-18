@@ -1,0 +1,12 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DisappointmentCalculator.MainPage">
+    <Grid HorizontalOptions="Center" VerticalOptions="Center">
+        <VerticalStackLayout Spacing="10">
+            <Button x:Name="LoadButton" FontSize="Large" Text="How much did I waste on AI?" Clicked="OnLoadClicked"/>
+            <Picker x:Name="AggregationPicker"/>
+            <Label x:Name="StatusLabel" FontSize="Micro" Text="Make sure no AI sessions are active to prevent data corruption."/>
+            <ProgressBar x:Name="Progress" Progress="0" IsVisible="false"/>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>
