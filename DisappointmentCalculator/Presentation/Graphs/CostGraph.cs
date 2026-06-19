@@ -1,5 +1,5 @@
-﻿using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Maui;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.WPF;
 
 using DisappointmentCalculator.Data;
 using DisappointmentCalculator.Presentation.Utilities;

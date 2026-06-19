@@ -3,6 +3,8 @@ using DisappointmentCalculator.Data.Sessions.BaseClasses;
 using DisappointmentCalculator.Enums;
 using DisappointmentCalculator.Utilities;
 
+using System.IO;
+
 namespace DisappointmentCalculator.Data;
 
 /// <summary>
@@ -18,18 +20,18 @@ public static class SessionCache {
     }
 
     /// <summary>
-    /// Load all cached daily aggregates.
+    /// Get the path to all cached daily aggregates.
     /// </summary>
-    public static SessionCollection LoadCache() {
+    public static List<(Guid, string)> GetSessionFiles() {
         if (!Directory.Exists(cachePath)) {
             Directory.CreateDirectory(cachePath);
         }
 
-        SessionCollection result = [];
+        List<(Guid, string)> result = [];
         string[] files = Directory.GetFiles(cachePath);
         foreach (string file in files) {
             if (file.EndsWith(".json")) {
-                result.Add(new Guid(Path.GetFileNameWithoutExtension(file)), new CachedSession(file));
+                result.Add((new(Path.GetFileNameWithoutExtension(file)), file));
             }
         }
         return result;

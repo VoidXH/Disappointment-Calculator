@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using DisappointmentCalculator.Data.Sessions;
 using DisappointmentCalculator.Data.Sessions.BaseClasses;
 using DisappointmentCalculator.Enums;
@@ -30,11 +28,7 @@ public static class SessionDiscovery {
         Dictionary<DateTime, List<Session>> groups = [];
         foreach (KeyValuePair<Guid, Session> kvp in sessions) {
             Session session = kvp.Value;
-            if (session.SessionStartTime <= 0) {
-                continue;
-            }
-
-            DateTime key = DateTimeOffset.FromUnixTimeMilliseconds(session.SessionStartTime).Date;
+            DateTime key = session.LastWriteTime.Date;
             if (groupBy == GroupBy.Monthly) {
                 key = new DateTime(key.Year, key.Month, 1);
             }
@@ -63,14 +57,12 @@ public static class SessionDiscovery {
     /// <returns>A dictionary mapping each session's Guid to its Session object. Returns an empty dictionary if the directory does not exist.</returns>
     public static async Task<SessionCollection> ParseSessions(IProgress<double> progress = null) {
         // Load cache to skip folders before cached date
-        SessionCollection cachedSessions = SessionCache.LoadCache();
-        DateTime lastUpdate = SessionCache.LastCacheUpdate;
-        long cacheDateMs = lastUpdate == default ? 0 : new DateTimeOffset(lastUpdate).ToUnixTimeMilliseconds();
-
         SessionCollection sessions = [];
-        IEnumerable<(Guid, string)> copilotSessions = CopilotSession.GetSessionFiles();
-        IEnumerable<(Guid, string)> vsCodeSessions = VSCodeSession.GetSessionFiles();
-        int total = copilotSessions.Count() + vsCodeSessions.Count();
+        DateTime lastUpdate = SessionCache.LastCacheUpdate;
+        IEnumerable<(Guid, string)> cachedSessions = SessionCache.GetSessionFiles();
+        IEnumerable<(Guid, string)> copilotSessions = CopilotSession.GetSessionFiles(lastUpdate);
+        IEnumerable<(Guid, string)> vsCodeSessions = VSCodeSession.GetSessionFiles(lastUpdate);
+        int total = cachedSessions.Count() + copilotSessions.Count() + vsCodeSessions.Count();
         int processed = 0;
 
         void ParseSet(IEnumerable<(Guid, string)> unparsedSessions, Func<string, Session> constructor) {
@@ -83,7 +75,7 @@ public static class SessionDiscovery {
                 } catch {
                     // Skip sessions that fail to parse
                 }
-                if (session?.SessionStartTime >= cacheDateMs) {
+                if (session != null) {
                     sessions[sessionId] = session;
                 }
 
@@ -93,15 +85,9 @@ public static class SessionDiscovery {
 
         ParseSet(copilotSessions, x => new CopilotSession(x));
         ParseSet(vsCodeSessions, x => new VSCodeSession(x));
-
-        // Merge cached sessions with newly discovered ones
-        foreach (KeyValuePair<Guid, Session> kvp in sessions) {
-            cachedSessions[kvp.Key] = kvp.Value;
-        }
-
-        // Update cache with newly discovered sessions
-        SessionCache.UpdateCache(sessions);
-        return cachedSessions;
+        SessionCache.UpdateCache(sessions); // Only cache what's not already cached
+        ParseSet(cachedSessions, x => new CachedSession(x));
+        return sessions;
     }
 
     /// <summary>

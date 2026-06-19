@@ -1,11 +1,14 @@
-﻿using DisappointmentCalculator.Data;
+using System.Windows;
+using System.Windows.Controls;
+
+using DisappointmentCalculator.Data;
 using DisappointmentCalculator.Enums;
 
 namespace DisappointmentCalculator {
     /// <summary>
     /// Welcome screen of Disappointment Calculator.
     /// </summary>
-    public partial class MainPage : ContentPage {
+    public partial class MainPage : UserControl {
         /// <summary>
         /// Welcome screen of Disappointment Calculator.
         /// </summary>
@@ -20,28 +23,30 @@ namespace DisappointmentCalculator {
         /// Loads Copilot session data using <see cref="SessionDiscovery"/>.
         /// </summary>
         async Task LoadData(ProgressBar progressBar) {
-            IProgress<double> progress = new Progress<double>(x => progressBar.Dispatcher.Dispatch(() => progressBar.Progress = x));
+            IProgress<double> progress = new Progress<double>(x => Application.Current.Dispatcher.Invoke(() => progressBar.Value = x * 100));
             GroupBy groupBy = AggregationPicker.SelectedIndex == 0 ? GroupBy.Monthly : GroupBy.Daily;
             SessionCollection sessions = await SessionDiscovery.ParseGroupedSessions(groupBy, progress);
 
-            AppShell currentShell = (AppShell)Shell.Current;
-            currentShell.Data = new(sessions, groupBy);
+            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+            mainWindow.Data = new(sessions, groupBy);
         }
 
         /// <summary>
         /// Load session data.
         /// </summary>
-        async void OnLoadClicked(object _, EventArgs e) {
+        async void OnLoadClicked(object _, RoutedEventArgs e) {
             LoadButton.IsEnabled = false;
-            StatusLabel.Text = "Loading session data...";
-            Progress.IsVisible = true;
-            Progress.Progress = 0;
+            StatusLabel.Content = "Loading session data...";
+            Progress.Visibility = Visibility.Visible;
+            Progress.Value = 0;
 
             await LoadData(Progress);
 
-            StatusLabel.Text = "Data loaded successfully.";
-            Progress.Progress = 1;
-            await Shell.Current.GoToAsync("///SummaryPage");
+            StatusLabel.Content = "Data loaded successfully.";
+            Progress.Value = 100;
+            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+            mainWindow.Data = mainWindow.Data; // Data is already set
+            mainWindow.ShowPage(new SummaryPage());
         }
     }
 }

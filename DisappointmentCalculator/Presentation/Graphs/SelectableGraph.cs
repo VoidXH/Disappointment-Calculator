@@ -1,15 +1,20 @@
-using LiveChartsCore.SkiaSharpView.Maui;
+using LiveChartsCore.SkiaSharpView.WPF;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 using DisappointmentCalculator.Data;
+
+using WPFGridUnitType = System.Windows.GridUnitType;
 
 namespace DisappointmentCalculator.Presentation.Graphs;
 
 /// <summary>
 /// A chart with a drop-down to switch between graph types.
 /// </summary>
-public partial class SelectableGraph : Grid {
+public class SelectableGraph : Grid {
     /// <summary>
     /// Gets or sets the currently displayed graph type.
     /// </summary>
@@ -18,9 +23,9 @@ public partial class SelectableGraph : Grid {
         set {
             if (selectedGraphType != value) {
                 selectedGraphType = value;
-                picker.SelectedIndexChanged += OnPickerSelectedIndexChanged;
+                picker.SelectionChanged -= OnPickerSelectionChanged;
                 picker.SelectedIndex = (int)selectedGraphType;
-                picker.SelectedIndexChanged -= OnPickerSelectedIndexChanged;
+                picker.SelectionChanged += OnPickerSelectionChanged;
                 ApplyDataSource();
             }
         }
@@ -46,7 +51,7 @@ public partial class SelectableGraph : Grid {
     /// <summary>
     /// Dropdown that chooses between graph types.
     /// </summary>
-    readonly Picker picker = new();
+    readonly ComboBox picker = new();
 
     /// <summary>
     /// A chart with a drop-down to switch between graph types.
@@ -56,18 +61,22 @@ public partial class SelectableGraph : Grid {
 
         picker.ItemsSource = graphTypeNames;
         picker.SelectedIndex = (int)selectedGraphType;
-        picker.SelectedIndexChanged += OnPickerSelectedIndexChanged;
+        picker.SelectionChanged += OnPickerSelectionChanged;
 
-        graph.BackgroundColor = Colors.Transparent;
+        graph.Background = Brushes.Transparent;
 
-        Grid.SetRow(picker, 0);
-        Grid.SetRow(graph, 1);
-        Grid.SetColumnSpan(graph, 2);
+        picker.HorizontalAlignment = HorizontalAlignment.Stretch;
+        graph.HorizontalAlignment = HorizontalAlignment.Stretch;
+        graph.VerticalAlignment = VerticalAlignment.Stretch;
 
-        RowDefinitions.Add(new RowDefinition(GridLength.Auto));
-        RowDefinitions.Add(new RowDefinition(GridLength.Star));
-        ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
-        ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        SetRow(picker, 0);
+        SetRow(graph, 1);
+        SetColumnSpan(graph, 2);
+
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, WPFGridUnitType.Auto) });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, WPFGridUnitType.Star) });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, WPFGridUnitType.Star) });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, WPFGridUnitType.Star) });
 
         Children.Add(picker);
         Children.Add(graph);
@@ -120,7 +129,7 @@ public partial class SelectableGraph : Grid {
     /// <summary>
     /// The user has changed the type of <see cref="graph"/> displayed.
     /// </summary>
-    void OnPickerSelectedIndexChanged(object _, EventArgs e) {
+    void OnPickerSelectionChanged(object _, SelectionChangedEventArgs e) {
         if (picker.SelectedItem is string displayName) {
             foreach (GraphType type in Enum.GetValues<GraphType>()) {
                 if (GetDisplayName(type) == displayName) {

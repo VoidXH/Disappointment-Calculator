@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -16,6 +17,11 @@ public class Session {
     /// Session start time as a Unix timestamp in milliseconds.
     /// </summary>
     public long SessionStartTime { get; init; }
+
+    /// <summary>
+    /// When the file was last written (UTC).
+    /// </summary>
+    public DateTime LastWriteTime { get; init; }
 
     /// <summary>
     /// AI credits used, billionths.

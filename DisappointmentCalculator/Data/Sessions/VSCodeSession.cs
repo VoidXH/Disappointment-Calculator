@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text.Json;
 
 using DisappointmentCalculator.Data.Sessions.BaseClasses;
@@ -16,9 +17,10 @@ public class VSCodeSession : Session {
     /// </summary>
     /// <param name="filePath">Path to the session file to parse</param>
     public VSCodeSession(string filePath) {
+        LastWriteTime = File.GetLastWriteTimeUtc(filePath);
+
         string currentModel = string.Empty;
         Dictionary<string, TokenUsage> modelMetrics = [];
-
         foreach (string line in File.ReadLines(filePath)) {
             if (string.IsNullOrWhiteSpace(line)) {
                 continue;
@@ -88,7 +90,7 @@ public class VSCodeSession : Session {
     /// Searches %APPDATA%\Code\User\workspaceStorage\*\chatSessions\*.jsonl.
     /// </summary>
     /// <returns>An enumerable of (sessionId, eventsFile) tuples where sessionId is the filename without dashes.</returns>
-    public static IEnumerable<(Guid sessionId, string eventsFile)> GetSessionFiles() {
+    public static IEnumerable<(Guid sessionId, string eventsFile)> GetSessionFiles(DateTime lastUpdate) {
         string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         string baseDir = Path.Combine(appData, "Code", "User", "workspaceStorage");
 
@@ -108,10 +110,12 @@ public class VSCodeSession : Session {
             string[] jsonlFiles = Directory.GetFiles(chatSessionsDir, "*.jsonl");
             foreach (string file in jsonlFiles) {
                 string fileName = Path.GetFileNameWithoutExtension(file);
-                string noDashes = fileName.Replace("-", "");
-                string formatted = $"{noDashes[..8]}-{noDashes[8..12]}-{noDashes[12..16]}-{noDashes[16..20]}-{noDashes[20..]}";
-                Guid sessionId = Guid.Parse(formatted);
-                result.Add((sessionId, file));
+                if (File.GetLastWriteTime(fileName) >= lastUpdate) {
+                    string noDashes = fileName.Replace("-", "");
+                    string formatted = $"{noDashes[..8]}-{noDashes[8..12]}-{noDashes[12..16]}-{noDashes[16..20]}-{noDashes[20..]}";
+                    Guid sessionId = Guid.Parse(formatted);
+                    result.Add((sessionId, file));
+                }
             }
         }
 

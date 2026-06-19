@@ -2,6 +2,8 @@
 Calculate the time and money you spent on AI so it could make knowledge debt in
 your projects.
 
+![Screenshot](docs/screenshot.png)
+
 ## Features
 - Load and parse AI session data from your local machine
   - Supports GitHub Copilot and Visual Studio Code
@@ -10,7 +12,7 @@ your projects.
 - Break down token usage by model type
 - Estimate and display cost, even per model
 - And many more graph types on a dashboard
-- Cross-platform support through MAUI
+- Cross-platform support through MAUI [in this commit](https://github.com/VoidXH/Disappointment-Calculator/commit/50e1caca6ac6a9359c165c0160e5434f2c45c1db)
 
 ## Licence
 By downloading the software and/or its source code, you are accepting these

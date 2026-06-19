@@ -1,0 +1,10 @@
+<Window x:Class="DisappointmentCalculator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:DisappointmentCalculator"
+        Title="Disappointment Calculator"
+        Background="{StaticResource WindowBackgroundBrush}">
+    <Grid>
+         <ContentControl x:Name="PageContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+     </Grid>
+</Window>

@@ -1,5 +1,7 @@
-﻿using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Maui;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView.WPF;
+using SkiaSharp;
 
 using DisappointmentCalculator.Data;
 
@@ -13,7 +15,7 @@ public static class GraphUtils {
     /// Set up a <paramref name="graph"/> for grouping data by month.
     /// </summary>
     public static void SetupTimeUnits(this CartesianChart graph, DataAggregator data) => graph.XAxes = [
-        new Axis {
+        new WhiteAxis {
             Labels = data.Labels
         }
     ];
@@ -24,9 +26,10 @@ public static class GraphUtils {
     public static void SetupForCost(this CartesianChart graph, DataAggregator data) {
         graph.SetupTimeUnits(data);
         graph.YAxes = [
-            new Axis {
+            new WhiteAxis {
                 Name = "Cost [$]",
-                Labeler = value2 => value2.ToString("N0")
+                MinLimit = 0,
+                Labeler = value => value.ToString("N0")
             }
         ];
     }
@@ -37,10 +40,11 @@ public static class GraphUtils {
     public static void SetupForDuration(this CartesianChart graph, DataAggregator data) {
         SetupTimeUnits(graph, data);
         graph.YAxes = [
-            new Axis {
-                 Name = "Duration",
-                 Labeler = value => TimeSpan.FromMilliseconds(value).ToString(@"hh\:mm\:ss")
-             }
+            new WhiteAxis {
+                Name = "Duration",
+                MinLimit = 0,
+                Labeler = value => TimeSpan.FromMilliseconds(value).ToString(@"hh\:mm\:ss")
+            }
         ];
     }
 
@@ -50,10 +54,24 @@ public static class GraphUtils {
     public static void SetupForTokens(this CartesianChart graph, DataAggregator data) {
         SetupTimeUnits(graph, data);
         graph.YAxes = [
-            new Axis {
+            new WhiteAxis {
                 Name = "Tokens",
+                MinLimit = 0,
                 Labeler = value => value.ToString("N0")
             }
         ];
+    }
+
+    /// <summary>
+    /// Paints text white on an axis.
+    /// </summary>
+    class WhiteAxis : Axis {
+        /// <summary>
+        /// Paints text white on an axis.
+        /// </summary>
+        public WhiteAxis() {
+            NamePaint = new SolidColorPaint(SKColors.White);
+            LabelsPaint = new SolidColorPaint(SKColors.White);
+        }
     }
 }

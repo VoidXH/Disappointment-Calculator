@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.IO;
+using System.Text.Json;
 
 using DisappointmentCalculator.Data.Sessions.BaseClasses;
 
@@ -13,6 +14,7 @@ public class CopilotSession : Session {
     /// </summary>
     /// <param name="filePath">Path to the events.jsonl file to parse</param>
     public CopilotSession(string filePath) {
+        LastWriteTime = File.GetLastWriteTimeUtc(filePath);
         foreach (string line in File.ReadLines(filePath)) {
             if (string.IsNullOrWhiteSpace(line)) {
                 continue;
@@ -61,13 +63,17 @@ public class CopilotSession : Session {
             ModelMetrics = result;
             break;
         }
+
+        if (ModelMetrics == null) {
+            throw new InvalidDataException();
+        }
     }
 
     /// <summary>
     /// Gets all session file paths from the GitHub Copilot session-state directory.
     /// </summary>
     /// <returns>An enumerable of tuples containing the session Guid and the events.jsonl file path.</returns>
-    public static IEnumerable<(Guid sessionId, string eventsFile)> GetSessionFiles() {
+    public static IEnumerable<(Guid sessionId, string eventsFile)> GetSessionFiles(DateTime lastUpdate) {
         string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         string sessionStateDir = Path.Combine(homeDir, ".copilot", "session-state");
 
@@ -84,7 +90,7 @@ public class CopilotSession : Session {
             }
 
             string eventsFile = Path.Combine(sessionDir, "events.jsonl");
-            if (File.Exists(eventsFile)) {
+            if (File.Exists(eventsFile) && File.GetLastWriteTime(sessionDir) >= lastUpdate) {
                 result.Add((sessionId, eventsFile));
             }
         }
