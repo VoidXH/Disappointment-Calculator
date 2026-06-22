@@ -40,7 +40,21 @@ namespace DisappointmentCalculator {
             Progress.Visibility = Visibility.Visible;
             Progress.Value = 0;
 
-            await LoadData(Progress);
+            try {
+                await LoadData(Progress);
+            } catch (SessionFileInUseException ex) {
+                StatusLabel.Content = "Warning: a session file is still in use. Exit all AI IDEs and CLIs, then try again.";
+                Progress.Visibility = Visibility.Collapsed;
+                LoadButton.IsEnabled = true;
+
+                MessageBox.Show(
+                    $"A session file is still in use:\n\n{ex.FilePath}\n\nExit all AI IDEs and CLIs, then try loading data again.",
+                    "Session file in use",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                );
+                return;
+            }
 
             StatusLabel.Content = "Data loaded successfully.";
             Progress.Value = 100;

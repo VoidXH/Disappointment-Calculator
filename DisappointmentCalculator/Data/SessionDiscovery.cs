@@ -1,3 +1,5 @@
+using System.IO;
+
 using DisappointmentCalculator.Data.Sessions;
 using DisappointmentCalculator.Data.Sessions.BaseClasses;
 using DisappointmentCalculator.Enums;
@@ -73,6 +75,8 @@ public static class SessionDiscovery {
                 Session session = null;
                 try {
                     session = constructor(eventsFile);
+                } catch (IOException e) when (SessionFileInUseException.IsFileInUse(e)) {
+                    throw new SessionFileInUseException(eventsFile, e);
                 } catch {
                     // Skip sessions that fail to parse
                 }

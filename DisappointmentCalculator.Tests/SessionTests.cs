@@ -108,6 +108,13 @@ public class SessionTests {
         }
     }
 
+    [TestMethod]
+    public void SessionFileInUseException_IsFileInUse_DetectsSharingAndLockViolations() {
+        Assert.IsTrue(SessionFileInUseException.IsFileInUse(new IOException("Sharing violation.", 32)));
+        Assert.IsTrue(SessionFileInUseException.IsFileInUse(new IOException("Lock violation.", 33)));
+        Assert.IsFalse(SessionFileInUseException.IsFileInUse(new IOException("Other IO error.", 5)));
+    }
+
     static readonly string testDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "events.jsonl");
     static readonly string codexTestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "codex-rollout.jsonl");
 

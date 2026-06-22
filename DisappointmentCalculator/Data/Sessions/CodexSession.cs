@@ -71,8 +71,12 @@ public class CodexSession : Session {
                 continue;
             }
 
-            if (TryGetSessionId(file, out Guid sessionId)) {
-                result.Add((sessionId, file));
+            try {
+                if (TryGetSessionId(file, out Guid sessionId)) {
+                    result.Add((sessionId, file));
+                }
+            } catch (IOException e) when (SessionFileInUseException.IsFileInUse(e)) {
+                throw new SessionFileInUseException(file, e);
             }
         }
 
