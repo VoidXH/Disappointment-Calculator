@@ -15,6 +15,7 @@ public static class ModelDatabase {
     /// Pricing information of known models.
     /// </summary>
     static readonly Dictionary<string, ModelPricing> catalog = new() {
+        { "auto", new("Auto-select (unknown cost)", "auto", 0, 0, 0, 0) },
         { "claude-fable-5", new("Anthropic Claude Fable 5", "claude-fable-5", 10m, 50m, 10m, 12.5m) },
         { "claude-haiku-4.5", new("Anthropic Claude Haiku 4.5", "claude-haiku-4.5", 1m, 5m, 0.1m, 1.25m) },
         { "claude-opus-4.5", new("Anthropic Claude Opus 4.5", "claude-opus-4.5", 5m, 25m, 0.5m, 6.25m) },

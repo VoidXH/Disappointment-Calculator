@@ -6,7 +6,7 @@ using DisappointmentCalculator.Utilities;
 namespace DisappointmentCalculator.Data;
 
 /// <summary>
-/// Finds GitHub Copilot's sessions.
+/// Finds supported AI sessions.
 /// </summary>
 public static class SessionDiscovery {
     /// <summary>
@@ -51,7 +51,7 @@ public static class SessionDiscovery {
     }
 
     /// <summary>
-    /// Parses all Copilot sessions from the .copilot/session-state directory into a dictionary keyed by session GUID.
+    /// Parses all supported local AI sessions into a dictionary keyed by session GUID.
     /// </summary>
     /// <param name="progress">Optional progress reporter reporting ratio of session folders processed (0-1)</param>
     /// <returns>A dictionary mapping each session's Guid to its Session object. Returns an empty dictionary if the directory does not exist.</returns>
@@ -61,8 +61,9 @@ public static class SessionDiscovery {
         DateTime lastUpdate = SessionCache.LastCacheUpdate;
         IEnumerable<(Guid, string)> cachedSessions = SessionCache.GetSessionFiles();
         IEnumerable<(Guid, string)> copilotSessions = CopilotSession.GetSessionFiles(lastUpdate);
+        IEnumerable<(Guid, string)> codexSessions = CodexSession.GetSessionFiles(lastUpdate);
         IEnumerable<(Guid, string)> vsCodeSessions = VSCodeSession.GetSessionFiles(lastUpdate);
-        int total = cachedSessions.Count() + copilotSessions.Count() + vsCodeSessions.Count();
+        int total = cachedSessions.Count() + copilotSessions.Count() + codexSessions.Count() + vsCodeSessions.Count();
         int processed = 0;
 
         void ParseSet(IEnumerable<(Guid, string)> unparsedSessions, Func<string, Session> constructor) {
@@ -84,6 +85,7 @@ public static class SessionDiscovery {
         }
 
         ParseSet(copilotSessions, x => new CopilotSession(x));
+        ParseSet(codexSessions, x => new CodexSession(x));
         ParseSet(vsCodeSessions, x => new VSCodeSession(x));
         SessionCache.UpdateCache(sessions); // Only cache what's not already cached
         ParseSet(cachedSessions, x => new CachedSession(x));
