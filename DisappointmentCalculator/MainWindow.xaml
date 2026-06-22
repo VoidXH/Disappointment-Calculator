@@ -5,6 +5,6 @@
         Title="Disappointment Calculator"
         Background="{StaticResource WindowBackgroundBrush}">
     <Grid>
-         <ContentControl x:Name="PageContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+         <ContentControl x:Name="PageContainer"/>
      </Grid>
 </Window>

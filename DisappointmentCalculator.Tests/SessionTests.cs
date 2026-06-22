@@ -109,6 +109,39 @@ public class SessionTests {
     }
 
     [TestMethod]
+    public void SessionCache_WipeCache_DeletesOnlyCacheDaysBeforeToday() {
+        string originalDirectory = Environment.CurrentDirectory;
+        string tempDirectory = Path.Combine(Path.GetTempPath(), nameof(SessionCache_WipeCache_DeletesOnlyCacheDaysBeforeToday), Guid.NewGuid().ToString());
+        DateTime today = DateTime.Today;
+        DateTime yesterday = today.AddDays(-1);
+        Guid todayKey = GuidUtils.ToGuid(today.Year, today.Month, today.Day, GroupBy.Daily);
+        Guid yesterdayKey = GuidUtils.ToGuid(yesterday.Year, yesterday.Month, yesterday.Day, GroupBy.Daily);
+        string cacheDirectory = Path.Combine(tempDirectory, "Session Cache");
+        string todayCacheFile = Path.Combine(cacheDirectory, todayKey + ".json");
+        string yesterdayCacheFile = Path.Combine(cacheDirectory, yesterdayKey + ".json");
+        string lastCacheUpdateFile = Path.Combine(cacheDirectory, "_Last.txt");
+
+        try {
+            Directory.CreateDirectory(cacheDirectory);
+            File.WriteAllText(todayCacheFile, "{}");
+            File.WriteAllText(yesterdayCacheFile, "{}");
+            File.WriteAllText(lastCacheUpdateFile, today.ToString());
+            Environment.CurrentDirectory = tempDirectory;
+
+            SessionCache.WipeCache();
+
+            Assert.IsTrue(File.Exists(todayCacheFile), "Expected today's cache file to be preserved.");
+            Assert.IsFalse(File.Exists(yesterdayCacheFile), "Expected cache files before today to be deleted.");
+            Assert.IsFalse(File.Exists(lastCacheUpdateFile), "Expected the cache marker to be removed when older cache files are deleted.");
+        } finally {
+            Environment.CurrentDirectory = originalDirectory;
+            if (Directory.Exists(tempDirectory)) {
+                Directory.Delete(tempDirectory, recursive: true);
+            }
+        }
+    }
+
+    [TestMethod]
     public void SessionFileInUseException_IsFileInUse_DetectsSharingAndLockViolations() {
         Assert.IsTrue(SessionFileInUseException.IsFileInUse(new IOException("Sharing violation.", 32)));
         Assert.IsTrue(SessionFileInUseException.IsFileInUse(new IOException("Lock violation.", 33)));

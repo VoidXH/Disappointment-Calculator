@@ -97,4 +97,14 @@ public class CopilotSession : Session {
 
         return result;
     }
+
+    /// <summary>
+    /// Deletes locally stored Copilot session cache files.
+    /// </summary>
+    public static void WipeCache() {
+        string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string sessionStateDir = Path.Combine(homeDir, ".copilot", "session-state");
+
+        CacheCleanup.DeleteEntriesBeforeToday(sessionStateDir);
+    }
 }

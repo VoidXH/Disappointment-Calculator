@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -35,17 +36,17 @@ namespace DisappointmentCalculator {
         /// Load session data.
         /// </summary>
         async void OnLoadClicked(object _, RoutedEventArgs e) {
-            LoadButton.IsEnabled = false;
-            StatusLabel.Content = "Loading session data...";
-            Progress.Visibility = Visibility.Visible;
-            Progress.Value = 0;
+            loadButton.IsEnabled = false;
+            status.Content = "Loading session data...";
+            progress.Visibility = Visibility.Visible;
+            progress.Value = 0;
 
             try {
-                await LoadData(Progress);
+                await LoadData(progress);
             } catch (SessionFileInUseException ex) {
-                StatusLabel.Content = "Warning: a session file is still in use. Exit all AI IDEs and CLIs, then try again.";
-                Progress.Visibility = Visibility.Collapsed;
-                LoadButton.IsEnabled = true;
+                status.Content = "Warning: a session file is still in use. Exit all AI IDEs and CLIs, then try again.";
+                progress.Visibility = Visibility.Collapsed;
+                loadButton.IsEnabled = true;
 
                 MessageBox.Show(
                     $"A session file is still in use:\n\n{ex.FilePath}\n\nExit all AI IDEs and CLIs, then try loading data again.",
@@ -56,11 +57,48 @@ namespace DisappointmentCalculator {
                 return;
             }
 
-            StatusLabel.Content = "Data loaded successfully.";
-            Progress.Value = 100;
+            status.Content = "Data loaded successfully.";
+            progress.Value = 100;
             MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
             mainWindow.Data = mainWindow.Data; // Data is already set
             mainWindow.ShowPage(new SummaryPage());
+        }
+
+        /// <summary>
+        /// Wipes all supported local session caches after user confirmation.
+        /// </summary>
+        void OnWipeCacheClicked(object _, RoutedEventArgs e) {
+            MessageBoxResult result = MessageBox.Show(
+                "Do you really want to clear the session caches from this computer? This cannot be undone.",
+                "Clear session caches?",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No
+            );
+
+            if (result != MessageBoxResult.Yes) {
+                return;
+            }
+
+            wipeCache.IsEnabled = false;
+            loadButton.IsEnabled = false;
+            status.Content = "Clearing session caches...";
+
+            try {
+                SessionDiscovery.WipeCache();
+                status.Content = "Session caches cleared.";
+            } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) {
+                status.Content = "Could not clear all session caches. Close AI tools and try again.";
+                MessageBox.Show(
+                    $"Could not clear all session caches:\n\n{ex.Message}",
+                    "Clear session caches failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                );
+            } finally {
+                wipeCache.IsEnabled = true;
+                loadButton.IsEnabled = true;
+            }
         }
     }
 }

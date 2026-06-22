@@ -109,6 +109,15 @@ public static class SessionDiscovery {
     }
 
     /// <summary>
+    /// Deletes local cache/session storage for every supported session format.
+    /// </summary>
+    public static void WipeCache() {
+        CopilotSession.WipeCache();
+        CodexSession.WipeCache();
+        VSCodeSession.WipeCache();
+    }
+
+    /// <summary>
     /// Reports the current processing progress as a percentage.
     /// </summary>
     /// <param name="progress">The progress reporter to update</param>

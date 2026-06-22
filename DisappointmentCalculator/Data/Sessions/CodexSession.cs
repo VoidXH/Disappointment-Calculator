@@ -84,6 +84,16 @@ public class CodexSession : Session {
     }
 
     /// <summary>
+    /// Deletes locally stored Codex session cache files.
+    /// </summary>
+    public static void WipeCache() {
+        string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string sessionsDir = Path.Combine(homeDir, ".codex", "sessions");
+
+        CacheCleanup.DeleteEntriesBeforeToday(sessionsDir);
+    }
+
+    /// <summary>
     /// Reads the session start timestamp from a Codex session metadata payload.
     /// </summary>
     static long ParseSessionStartTime(JsonElement payload) {

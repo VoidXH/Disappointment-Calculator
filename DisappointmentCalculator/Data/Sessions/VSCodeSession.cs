@@ -123,6 +123,23 @@ public class VSCodeSession : Session {
     }
 
     /// <summary>
+    /// Deletes locally stored VS Code chat session cache files.
+    /// </summary>
+    public static void WipeCache() {
+        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string baseDir = Path.Combine(appData, "Code", "User", "workspaceStorage");
+
+        if (!Directory.Exists(baseDir)) {
+            return;
+        }
+
+        foreach (string workspaceFolder in Directory.GetDirectories(baseDir)) {
+            string chatSessionsDir = Path.Combine(workspaceFolder, "chatSessions");
+            CacheCleanup.DeleteEntriesBeforeToday(chatSessionsDir);
+        }
+    }
+
+    /// <summary>
     /// Parse estimated token counts from an entire <see cref="JsonElement"/>.
     /// </summary>
     static int ParseTokenCountFrom(JsonElement element, string propertyName) =>
