@@ -6,7 +6,7 @@ your projects.
 
 ## Features
 - Load and parse AI session data from your local machine
-  - Supports GitHub Copilot, Codex, and Visual Studio Code
+  - Supports Google Antigravity, GitHub Copilot, Codex, and Visual Studio Code
 - Aggregate token usage per month or day
 - Visualize total token consumption over time
 - Break down token usage by model type

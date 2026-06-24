@@ -62,10 +62,11 @@ public static class SessionDiscovery {
         SessionCollection sessions = [];
         DateTime lastUpdate = SessionCache.LastCacheUpdate;
         IEnumerable<(Guid, string)> cachedSessions = SessionCache.GetSessionFiles();
+        IEnumerable<(Guid, string)> antigravitySessions = AntigravitySession.GetSessionFiles(lastUpdate);
         IEnumerable<(Guid, string)> copilotSessions = CopilotSession.GetSessionFiles(lastUpdate);
         IEnumerable<(Guid, string)> codexSessions = CodexSession.GetSessionFiles(lastUpdate);
         IEnumerable<(Guid, string)> vsCodeSessions = VSCodeSession.GetSessionFiles(lastUpdate);
-        int total = cachedSessions.Count() + copilotSessions.Count() + codexSessions.Count() + vsCodeSessions.Count();
+        int total = cachedSessions.Count() + antigravitySessions.Count() + copilotSessions.Count() + codexSessions.Count() + vsCodeSessions.Count();
         int processed = 0;
 
         void ParseSet(IEnumerable<(Guid, string)> unparsedSessions, Func<string, Session> constructor) {
@@ -88,6 +89,7 @@ public static class SessionDiscovery {
             }
         }
 
+        ParseSet(antigravitySessions, x => new AntigravitySession(x));
         ParseSet(copilotSessions, x => new CopilotSession(x));
         ParseSet(codexSessions, x => new CodexSession(x));
         ParseSet(vsCodeSessions, x => new VSCodeSession(x));
@@ -112,6 +114,7 @@ public static class SessionDiscovery {
     /// Deletes local cache/session storage for every supported session format.
     /// </summary>
     public static void WipeCache() {
+        AntigravitySession.WipeCache();
         CopilotSession.WipeCache();
         CodexSession.WipeCache();
         VSCodeSession.WipeCache();

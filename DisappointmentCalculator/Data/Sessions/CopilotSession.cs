@@ -43,19 +43,19 @@ public class CopilotSession : Session {
                     TokenUsage metrics = new();
                     JsonElement usage = model.Value.GetProperty("usage");
                     if (usage.TryGetProperty("inputTokens", out JsonElement inputTokens)) {
-                        metrics.InputTokens = inputTokens.GetInt32();
+                        metrics.InputTokens = inputTokens.GetInt64();
                     }
                     if (usage.TryGetProperty("outputTokens", out JsonElement outputTokens)) {
-                        metrics.OutputTokens = outputTokens.GetInt32();
+                        metrics.OutputTokens = outputTokens.GetInt64();
                     }
                     if (usage.TryGetProperty("cacheReadTokens", out JsonElement cacheReadTokens)) {
-                        metrics.CacheReadTokens = cacheReadTokens.GetInt32();
+                        metrics.CacheReadTokens = cacheReadTokens.GetInt64();
                     }
                     if (usage.TryGetProperty("cacheWriteTokens", out JsonElement cacheWriteTokens)) {
-                        metrics.CacheWriteTokens = cacheWriteTokens.GetInt32();
+                        metrics.CacheWriteTokens = cacheWriteTokens.GetInt64();
                     }
                     if (usage.TryGetProperty("reasoningTokens", out JsonElement reasoningTokens)) {
-                        metrics.ReasoningTokens = reasoningTokens.GetInt32();
+                        metrics.ReasoningTokens = reasoningTokens.GetInt64();
                     }
                     result[model.Name] = metrics;
                 }

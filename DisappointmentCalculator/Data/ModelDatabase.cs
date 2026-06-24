@@ -24,7 +24,7 @@ public static class ModelDatabase {
         { "claude-sonnet-4.5", new("Anthropic Claude Sonnet 4.5", "claude-sonnet-4.5", 3m, 15m, 0.3m, 3.75m) },
         { "claude-sonnet-4.6", new("Anthropic Claude Sonnet 4.6", "claude-sonnet-4.6", 3m, 15m, 0.3m, 3.75m) },
         { "gemini-2.5-pro", new("Google Gemini 2.5 Pro", "gemini-2.5-pro", 2m, 12m, 0.2m, 2.5m) },
-        { "gemini-3-flash", new("Google Gemini 3 Flash", "gemini-3-flash", 0.075m, 0.3m, 075m, 0.0938m) },
+        { "gemini-3-flash", new("Google Gemini 3 Flash", "gemini-3-flash", 0.5m, 3m, 0.05m, 0) },
         { "gemini-3.1-pro", new("Google Gemini 3.1 Pro", "gemini-3.1-pro", 2m, 12m, 0.2m, 2.5m) },
         { "gemini-3.5-flash", new("Google Gemini 3.5 Flash", "gemini-3.5-flash", 1.5m, 9m, 0.15m, 1.875m) },
         { "gpt-4", new("OpenAI GPT-4", "gpt-4", 2.5m, 15m, 1.25m, 2.5m) },
